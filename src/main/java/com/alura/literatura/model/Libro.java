@@ -14,7 +14,7 @@ public class Libro {
 
     public Libro(DatosLibro datosLibro) {
         this.titulo = datosLibro.titulo();
-        this.idioma = Idioma.fromString(datosLibro.idioma().split(",")[0].trim());
+        this.idioma = Idioma.fromString(datosLibro.idioma().getFirst());
         this.totalDescargas = datosLibro.totalDescargas();
     }
 
