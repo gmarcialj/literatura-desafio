@@ -155,12 +155,12 @@ public class Principal {
                             .map(Libro::getTitulo)
                             .collect(Collectors.joining(", "));
                     System.out.printf("""
-                            ---------- Datos del Libro ----------
+                            ---------- Datos del Autor ----------
                             Nombre: %s
                             Año de nacimiento: %s
                             Año de muerte: %s
                             Libros: [%s]
-                                -------------------------------------
+                            -------------------------------------
                             """,
                             a.getNombre(),
                             a.getAnioNacimiento(),
@@ -170,7 +170,33 @@ public class Principal {
     }
 
     private void listarAutoresVivosPorAnio() {
-
+        System.out.println("Escriba un año para listar los autores vivos en dicho año (YYYY)");
+        var anio = teclado.nextInt();
+        List<Autor> autores = autorRepository.autoresVivosPorAnio(anio);
+        if (autores.isEmpty()) {
+            System.out.println("No se encontraron autores registrados vivos en el año " + anio);
+        } else {
+            Set<String> nombres = new HashSet<>();
+            autores.stream()
+                    .filter(a -> nombres.add(a.getNombre()))
+                    .forEach(a -> {
+                        String libros = a.getLibros().stream()
+                                .map(Libro::getTitulo)
+                                .collect(Collectors.joining(", "));
+                        System.out.printf("""
+                                ---------- Datos del Autor ----------
+                                Nombre: %s
+                                Año de nacimiento: %s
+                                Año de muerte: %s
+                                Libros: [%s]
+                                -------------------------------------
+                                """,
+                                a.getNombre(),
+                                a.getAnioNacimiento(),
+                                a.getAnioMuerte(),
+                                libros);
+                    });
+        }
     }
 
     private void listarLibrosPorIdioma() {}
