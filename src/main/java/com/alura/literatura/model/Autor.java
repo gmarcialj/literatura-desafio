@@ -50,6 +50,22 @@ public class Autor {
         this.anioMuerte = anioMuerte;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public List<Libro> getLibros() {
+        return libros;
+    }
+
+    public void setLibros(List<Libro> libros) {
+        this.libros = libros;
+    }
+
     @Override
     public String toString() {
         return "nombre=" + nombre +

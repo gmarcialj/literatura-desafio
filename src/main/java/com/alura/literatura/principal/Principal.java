@@ -7,6 +7,7 @@ import com.alura.literatura.service.ConsumoAPI;
 import com.alura.literatura.service.ConvierteDatos;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Principal {
     private Scanner teclado = new Scanner(System.in);
@@ -143,7 +144,29 @@ public class Principal {
     }
 
     private void listarAutoresRegistrados() {
+        List<Autor> autores = autorRepository.findAllAutoresLibros();
 
+        Set<String> nombres = new HashSet<>();
+        autores.stream()
+                .sorted(Comparator.comparing(Autor::getNombre))
+                .filter(a -> nombres.add(a.getNombre()))
+                .forEach(a -> {
+                    String titulos = a.getLibros().stream()
+                            .map(Libro::getTitulo)
+                            .collect(Collectors.joining(", "));
+                    System.out.printf("""
+                            ---------- Datos del Libro ----------
+                            Nombre: %s
+                            Año de nacimiento: %s
+                            Año de muerte: %s
+                            Libros: [%s]
+                                -------------------------------------
+                            """,
+                            a.getNombre(),
+                            a.getAnioNacimiento(),
+                            a.getAnioMuerte(),
+                            titulos);
+                });
     }
 
     private void listarAutoresVivosPorAnio() {
