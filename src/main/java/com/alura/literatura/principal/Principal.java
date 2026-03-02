@@ -199,5 +199,39 @@ public class Principal {
         }
     }
 
-    private void listarLibrosPorIdioma() {}
+    private void listarLibrosPorIdioma() {
+        System.out.println("Indique el idioma por el que desea buscar los libros");
+        System.out.println("en - Inglés\nes - Español\nfr - Frances\npt - Portugués");
+        var idiomaInput = teclado.nextLine().trim();
+
+        Idioma idioma = null;
+
+        try {
+            idioma = Idioma.fromString(idiomaInput);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Idioma inválido: " + idiomaInput);
+        }
+
+        List<Libro> libros = libroRepository.findByIdioma(idioma);
+
+        if (libros.isEmpty()) {
+            System.out.println("No hay libros registrados en ese idioma.");
+        } else {
+            libros.stream()
+                    .sorted(Comparator.comparing(Libro::getTitulo))
+                    .forEach(l ->
+                            System.out.printf("""
+                                    ---------- Datos del Libro ----------
+                                    Título: %s
+                                    Autor: %s
+                                    Idioma: %s
+                                    Descargas totales: %s
+                                    -------------------------------------
+                                    """,
+                                    l.getTitulo(),
+                                    l.getAutor().getNombre(),
+                                    l.getIdioma(),
+                                    l.getTotalDescargas()));
+        }
+    }
 }
