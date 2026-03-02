@@ -1,6 +1,8 @@
 package com.alura.literatura.principal;
 
 import com.alura.literatura.model.*;
+import com.alura.literatura.repository.AutorRepository;
+import com.alura.literatura.repository.LibroRepository;
 import com.alura.literatura.service.ConsumoAPI;
 import com.alura.literatura.service.ConvierteDatos;
 
@@ -14,11 +16,17 @@ public class Principal {
     private ConsumoAPI consumoAPI = new ConsumoAPI();
     private final String URL_Base = "https://gutendex.com/books/";
     private ConvierteDatos convierteDatos = new ConvierteDatos();
-    private List<DatosLibro> datosLibros = new ArrayList<>();
-    private List<DatosAutor> datosAutores = new ArrayList<>();
-    private List<Libro> libros;
-    private List<Autor> autores;
-    private Optional<Libro> libroBuscado;
+    private LibroRepository libroRepository;
+    private AutorRepository autorRepository;
+    private List<DatosLibro> datosLibro = new ArrayList<>();
+    private Optional<Autor> autorBuscado;
+
+    public Principal(LibroRepository libroRepository, AutorRepository autorRepository) {
+        this.libroRepository = libroRepository;
+        this.autorRepository = autorRepository;
+        List<Libro> libros = new ArrayList<>();
+        List<Autor> autores = new ArrayList<>();
+    }
 
     public void mostrarMenu() {
         var opcion = -1;
@@ -63,6 +71,16 @@ public class Principal {
         }
     }
 
+    // Métodos que conectan a la BD
+    public boolean buscarLibroEnBD(String titulo) {
+        List<Libro> libroEncontrado = libroRepository.busquedaLibro(titulo);
+
+        if (libroEncontrado.isEmpty()) {
+            return false;
+        }
+        return true;
+    }
+
     // Métodos de DatosLibro y DatosAutor
     private Optional<DatosLibro> getDatosLibro() {
         System.out.println("Ingrese el título del libro que desea buscar: ");
@@ -79,14 +97,30 @@ public class Principal {
 
     // Métodos del menú
     private void buscarLibroPorTitulo() {
-        Optional <DatosLibro> libroEncontrado = getDatosLibro();
+        Optional<DatosLibro> libroEncontrado = getDatosLibro();
+        Optional<Libro> found = Optional.empty();
 
         if (libroEncontrado.isEmpty()) {
             System.out.println("No se encontró el libro, verifique que el nombre esté escrito correctamente");
         } else {
-            // System.out.println("Libro encontrado: ");
-            // System.out.println(libroEncontrado.get());
-            
+            if (!buscarLibroEnBD(libroEncontrado.get().titulo())) {
+                DatosAutor datosAutor = libroEncontrado.get().autor().getFirst();
+                Autor autor = autorRepository.findByNombreIgnoreCase(datosAutor.nombre())
+                        .orElseGet(() -> {
+                            // Si no existe se crea un nuevo
+                            Autor nuevoAutor = new Autor(datosAutor);
+                            return autorRepository.save(nuevoAutor);
+                        });
+
+                // Se almacena el libro
+                Libro libro = new Libro(libroEncontrado.get(), autor);
+                libroRepository.save(libro);
+                System.out.println(libroEncontrado.get());
+                System.out.println("Libro guardado exitosamente: " + libro.getTitulo());
+
+            } else {
+                System.out.println("No se puede registrar el mismo libro más de una vez");
+            }
         }
     }
 
