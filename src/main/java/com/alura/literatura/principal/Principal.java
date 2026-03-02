@@ -6,10 +6,7 @@ import com.alura.literatura.repository.LibroRepository;
 import com.alura.literatura.service.ConsumoAPI;
 import com.alura.literatura.service.ConvierteDatos;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Scanner;
+import java.util.*;
 
 public class Principal {
     private Scanner teclado = new Scanner(System.in);
@@ -125,7 +122,24 @@ public class Principal {
     }
 
     private void listarLibrosRegistrados() {
-
+        List<Libro> libros = libroRepository.findAll();
+        libros.stream()
+                .sorted(Comparator.comparing(Libro::getTitulo))
+                .forEach(l ->
+                        System.out.printf("""
+                                ---------- Datos del Libro ----------
+                                Título: %s
+                                Autor: %s
+                                Idioma: %s
+                                Descargas totales: %s
+                                -------------------------------------
+                                """,
+                                l.getTitulo(),
+                                l.getAutor().getNombre(),
+                                l.getIdioma(),
+                                l.getTotalDescargas()
+                        )
+                );
     }
 
     private void listarAutoresRegistrados() {
